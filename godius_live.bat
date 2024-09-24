@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
 set myDir=%~dp0
 
 :: Copyright
-set copyright=-vf "drawtext=fontfile='C\://WINDOWS/Fonts/arial.ttf':text='Copyright GODIUS by Lionsfilm Co., Ltd.':bordercolor=white:borderw=3:x=3:y=3"
+set copyright=-vf "format=yuv420p,drawtext=fontfile='C:/WINDOWS/Fonts/arial.ttf':text='Copyright GODIUS by Lionsfilm Co., Ltd.':bordercolor=white:borderw=3:x=3:y=3"
 
 :: Read config
 for /f "usebackq tokens=1,2 delims==" %%i in ("%myDir%config.txt") do (
@@ -91,11 +91,11 @@ echo "2. Only local record"
 echo "3. Both Live and record"
 set /p choice="Please select. (1/2/3 default: 3):"
 if "%choice%"=="1" (
-    set record=-f flv "rtmp://a.rtmp.youtube.com/live2/%stream_key%"
+    set record=-f flv "rtmps://a.rtmps.youtube.com:443/live2/%stream_key%"
 ) else if "%choice%"=="2" (
     set record=-f flv "%video_dir%GODIUS_%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%%time:~6,2%.flv"
 ) else (
-    set record=-f flv "%video_dir%\GODIUS_%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%%time:~6,2%.flv" -f flv "rtmp://a.rtmp.youtube.com/live2/%stream_key%"
+    set record=-f flv "%video_dir%\GODIUS_%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%%time:~6,2%.flv" -f flv "rtmps://a.rtmps.youtube.com:443/live2/%stream_key%"
 )
 
 :: Output screen size
@@ -115,7 +115,8 @@ if "%blank_time%"=="" (
 timeout /t %blank_time% /nobreak
 
 :: Run FFmpeg
-ffmpeg %mic% %mixer% -framerate 30 -video_size %screen_size% -f gdigrab -i desktop %music_playlists% %music_loops% -c:v libx264 -vf format=yuv420p %copyright% -preset veryfast -g 60 -b:v 4000k -maxrate 4000k -bufsize 12000k -c:a aac %record%
+ffmpeg %mic% %mixer% %music_playlists% %music_loops% -framerate 30 -video_size %screen_size% -f gdigrab -i desktop -c:v libx264 %copyright% -preset veryfast -g 60 -b:v 4000k -maxrate 4000k -bufsize 12000k -c:a aac %record%
+
 
 :: Error hundling
 if errorlevel 1 (
