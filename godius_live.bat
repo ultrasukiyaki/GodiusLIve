@@ -31,13 +31,26 @@ findstr /r "@device" %myDir\%devices_temp.txt > %myDir%devices.txt
 
 :: List of devices
 set /a dev_count=0
-for /f "tokens=*" %%i in ('find /i "@device" %myDir%devices.txt') do (
-    set /a dev_count+=1
-    echo [!dev_count!] %%i
-    for /f "tokens=3 delims=@" %%j in ("%%i") do (
-        set "device[!dev_count!]=@%%j"
+
+for /f "tokens=*" %%i in (devices.txt) do (
+    set "line=%%i"
+    
+    if not "!line!"=="" (
+        echo !line! | findstr /r "^---" >nul
+        echo !line! | findstr /r "dummy" >nul
+        if not !errorlevel! == 0 (
+            set /a dev_count+=1
+
+            for /f "tokens=1,2 delims=:" %%a in ("!line!") do (
+                if not "%%b"=="" (
+                    echo [!dev_count!] %%b
+                    set "device[!dev_count!]=%%b"
+                )
+            )
+        )
     )
 )
+
 :: Add no sound
 set /a dev_count+=1
 echo [%dev_count%] "No sound"
